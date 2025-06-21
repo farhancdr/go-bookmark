@@ -21,7 +21,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.20'  # Matches README prerequisite
+          go-version: '1.24.4'
 
       - name: Create scripts directory
         run: mkdir -p scripts
