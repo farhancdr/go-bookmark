@@ -1,53 +1,109 @@
-# This is an example .goreleaser.yml file with some sensible defaults.
-# Make sure to check the documentation at https://goreleaser.com
-
-# The lines below are called `modelines`. See `:help modeline`
-# Feel free to remove those if you don't want/need to use them.
-# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
-# vim: set ts=2 sw=2 tw=0 fo=cnqoj
-
-version: 2
-
+# .goreleaser.yaml
 before:
   hooks:
-    # You may remove this if you don't use go modules.
     - go mod tidy
-    # you may remove this if you don't need go generate
     - go generate ./...
+    - ./scripts/generate-completions.sh
 
 builds:
-  - env:
+  - id: bm
+    binary: bm
+    main: ./cmd/bm
+    env:
       - CGO_ENABLED=0
     goos:
-      - linux
-      - windows
       - darwin
+      - linux
+    goarch:
+      - arm64  # macOS Silicon and Linux ARM64
+      - amd64  # Linux x86_64
+    ldflags:
+      - -s -w -X github.com/farhancdr/go-bookmark/cmd.version={{.Version}}
 
 archives:
-  - formats: [tar.gz]
-    # this name template makes the OS and Arch compatible with the results of `uname`.
-    name_template: >-
-      {{ .ProjectName }}_
-      {{- title .Os }}_
-      {{- if eq .Arch "amd64" }}x86_64
-      {{- else if eq .Arch "386" }}i386
-      {{- else }}{{ .Arch }}{{ end }}
-      {{- if .Arm }}v{{ .Arm }}{{ end }}
-    # use zip for windows archives
-    format_overrides:
-      - goos: windows
-        formats: [zip]
+  - id: bm
+    builds:
+      - bm
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    wrap_in_directory: true
+    format: tar.gz
+    replacements:
+      darwin: macOS
+      linux: Linux
+      arm64: ARM64
+      amd64: x86_64
+    files:
+      - README.md
+      - LICENSE
+      - completions/bm.bash
+      - completions/bm.zsh
+      - completions/bm.fish
+
+universal_binaries:
+  - replace: true
+    id: bm
+    name_template: "{{ .ProjectName }}_{{ .Version }}_macOS_universal"
+
+release:
+  github:
+    owner: farhancdr
+    name: go-bookmark
+  prerelease: auto
+
+checksum:
+  name_template: checksums.txt
 
 changelog:
   sort: asc
   filters:
     exclude:
-      - "^docs:"
-      - "^test:"
+      - '^docs:'
+      - '^test:'
 
-release:
-  footer: >-
+brews:
+  - name: bm
+    description: "A cross-platform CLI tool for efficient directory bookmarking and navigation"
+    homepage: "https://github.com/farhancdr/go-bookmark"
+    tap:
+      owner: farhancdr
+      name: homebrew-tools
+      branch: main
+    folder: Formula
+    commit_author:
+      name: farhancdr
+      email: your-email@example.com
+    install: |
+      bin.install "bm"
+      bash_completion.install "completions/bm.bash" => "bm"
+      zsh_completion.install "completions/bm.zsh" => "_bm"
+      fish_completion.install "completions/bm.fish"
+    test: |
+      system "#{bin}/bm", "--version"
+    caveats: |
+      To enable directory navigation with `bm goto`, add the following to your shell configuration:
 
-    ---
+      For Bash/Zsh (~/.bashrc or ~/.zshrc):
+        function bm_goto() {
+            local target_dir=$(bm goto "$1")
+            if [ -n "$target_dir" ] && [ -d "$target_dir" ]; then
+                cd "$target_dir"
+            else
+                echo "Error: $target_dir"
+            fi
+        }
+        alias bm_g='bm_goto'
 
-    Released by [GoReleaser](https://github.com/goreleaser/goreleaser).
+      For Fish (~/.config/fish/config.fish):
+        function bm_goto
+            set target_dir (bm goto $argv[1])
+            if test -n "$target_dir" -a -d "$target_dir"
+                cd $target_dir
+            else
+                echo "Error: $target_dir"
+            end
+        end
+
+      After adding, reload your shell with:
+        source ~/.bashrc  # or ~/.zshrc or ~/.config/fish/config.fish
+
+      Shell completions have been installed for bash, zsh, and fish.
