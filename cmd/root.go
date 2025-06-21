@@ -11,6 +11,7 @@ func NewRootCmd() *cobra.Command {
 		Long:  `bm (bookmark) is a cross-platform CLI tool to save, manage, and navigate to bookmarked directories efficiently.`,
 	}
 
+	rootCmd.AddCommand(NewCompletionCmd())
 	rootCmd.AddCommand(NewVersionCmd())
 	rootCmd.AddCommand(NewSaveCmd())
 	rootCmd.AddCommand(NewGotoCmd())
