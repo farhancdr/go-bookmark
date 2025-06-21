@@ -63,7 +63,6 @@ brews:
       owner: farhancdr
       name: homebrew-tools
       branch: main
-      directory: Formula
     commit_author:
       name: farhancdr
       email: your-email@example.com
