@@ -25,14 +25,9 @@ archives:
   - id: bm
     builds:
       - bm
-    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ if eq .Os \"darwin\" }}macOS{{ else }}Linux{{ end }}_{{ if eq .Arch \"arm64\" }}ARM64{{ else }}x86_64{{ end }}"
     wrap_in_directory: true
     format: tar.gz
-    replacements:
-      darwin: macOS
-      linux: Linux
-      arm64: ARM64
-      amd64: x86_64
     files:
       - README.md
       - LICENSE
@@ -41,8 +36,7 @@ archives:
       - completions/bm.fish
 
 universal_binaries:
-  - replace: true
-    id: bm
+  - id: bm
     name_template: "{{ .ProjectName }}_{{ .Version }}_macOS_universal"
 
 release:
@@ -65,11 +59,11 @@ brews:
   - name: bm
     description: "A cross-platform CLI tool for efficient directory bookmarking and navigation"
     homepage: "https://github.com/farhancdr/go-bookmark"
-    tap:
+    repository:
       owner: farhancdr
       name: homebrew-tools
       branch: main
-    folder: Formula
+      directory: Formula
     commit_author:
       name: farhancdr
       email: your-email@example.com
