@@ -57,8 +57,7 @@ homebrew_casks:
     directory: Casks
     description: "A cross-platform CLI tool for efficient directory bookmarking and navigation"
     homepage: "https://github.com/farhancdr/go-bookmark"
-    conflicts:
-      formula: bm
+    conflicts: ["bm"]
     repository:
       owner: farhancdr
       name: homebrew-tools
@@ -72,13 +71,11 @@ homebrew_casks:
           if system_command("/usr/bin/xattr", args: ["-h"]).exit_status == 0
             system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/bm"]
           end
-    install: |
-      bin.install "bm"
-      bash_completion.install "completions/bm.bash" => "bm"
-      zsh_completion.install "completions/bm.zsh" => "_bm"
-      fish_completion.install "completions/bm.fish"
-    test: |
-      system "#{bin}/bm", "--version"
+    binary: |
+      binary "#{staged_path}/bm"
+      bash_completion.install "#{staged_path}/completions/bm.bash" => "bm"
+      zsh_completion.install "#{staged_path}/completions/bm.zsh" => "_bm"
+      fish_completion.install "#{staged_path}/completions/bm.fish"
     caveats: |
       To enable directory navigation with `bm goto`, add the following to your shell configuration:
 
