@@ -52,10 +52,13 @@ changelog:
       - '^docs:'
       - '^test:'
 
-brews:
+homebrew_casks:
   - name: bm
+    directory: Casks
     description: "A cross-platform CLI tool for efficient directory bookmarking and navigation"
     homepage: "https://github.com/farhancdr/go-bookmark"
+    conflicts:
+      formula: bm
     repository:
       owner: farhancdr
       name: homebrew-tools
@@ -63,6 +66,12 @@ brews:
     commit_author:
       name: farhancdr
       email: your-email@example.com
+    hooks:
+      post:
+        install: |
+          if system_command("/usr/bin/xattr", args: ["-h"]).exit_status == 0
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/bm"]
+          end
     install: |
       bin.install "bm"
       bash_completion.install "completions/bm.bash" => "bm"
