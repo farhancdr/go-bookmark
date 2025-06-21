@@ -27,14 +27,13 @@ archives:
     wrap_in_directory: true
     files:
       - README.md
-      - LICENSE
       - completions/bm.bash
       - completions/bm.zsh
       - completions/bm.fish
 
 universal_binaries:
   - id: bm
-    replace: true  # Replaces individual darwin binaries
+    replace: true
     name_template: "{{ .ProjectName }}_{{ .Version }}_macOS_universal"
 
 release:
