@@ -52,7 +52,7 @@ changelog:
       - '^docs:'
       - '^test:'
 
-homebrews:
+brews:
   - name: bm
     description: "A cross-platform CLI tool for efficient directory bookmarking and navigation"
     homepage: "https://github.com/farhancdr/go-bookmark"
@@ -76,7 +76,6 @@ homebrews:
       For Bash/Zsh (~/.bashrc or ~/.zshrc):
         function bm_goto() {
             local target_dir=$(bm goto "$1")
-            ifਮ
             if [ -n "$target_dir" ] && [ -d "$target_dir" ]; then
                 cd "$target_dir"
             else
