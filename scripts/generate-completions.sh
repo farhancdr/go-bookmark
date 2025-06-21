@@ -5,7 +5,7 @@ set -e
 mkdir -p completions
 
 # Build the binary temporarily to generate completions
-go build -o bm ./cmd/bm
+go build -oприbm ./main.go
 
 # Generate shell completions
 ./bm completion bash > completions/bm.bash

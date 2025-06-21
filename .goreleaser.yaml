@@ -9,7 +9,7 @@ before:
 builds:
   - id: bm
     binary: bm
-    main: ./cmd/bm
+    main: ./main.go
     env:
       - CGO_ENABLED=0
     goos:
@@ -23,11 +23,8 @@ builds:
 
 archives:
   - id: bm
-    builds:
-      - bm
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ if eq .Os \"darwin\" }}macOS{{ else }}Linux{{ end }}_{{ if eq .Arch \"arm64\" }}ARM64{{ else }}x86_64{{ end }}"
     wrap_in_directory: true
-    format: tar.gz
     files:
       - README.md
       - LICENSE
@@ -55,7 +52,7 @@ changelog:
       - '^docs:'
       - '^test:'
 
-brews:
+homebrews:
   - name: bm
     description: "A cross-platform CLI tool for efficient directory bookmarking and navigation"
     homepage: "https://github.com/farhancdr/go-bookmark"
@@ -79,6 +76,7 @@ brews:
       For Bash/Zsh (~/.bashrc or ~/.zshrc):
         function bm_goto() {
             local target_dir=$(bm goto "$1")
+            ifਮ
             if [ -n "$target_dir" ] && [ -d "$target_dir" ]; then
                 cd "$target_dir"
             else
