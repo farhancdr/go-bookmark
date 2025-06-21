@@ -17,13 +17,13 @@ builds:
       - linux
     goarch:
       - arm64  # macOS Silicon and Linux ARM64
-      - amd64  # Linux x86_64
+      - amd64  # macOS x86_64 and Linux x86_64
     ldflags:
       - -s -w -X github.com/farhancdr/go-bookmark/cmd.version={{.Version}}
 
 archives:
   - id: bm
-    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ if eq .Os \"darwin\" }}macOS{{ else }}Linux{{ end }}_{{ if eq .Arch \"arm64\" }}ARM64{{ else }}x86_64{{ end }}"
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ if eq .Os \"darwin\" }}macOS_universal{{ else if eq .Os \"linux\" }}{{ if eq .Arch \"arm64\" }}Linux_ARM64{{ else }}Linux_x86_64{{ end }}{{ end }}"
     wrap_in_directory: true
     files:
       - README.md
@@ -34,6 +34,7 @@ archives:
 
 universal_binaries:
   - id: bm
+    replace: true  # Replaces individual darwin binaries
     name_template: "{{ .ProjectName }}_{{ .Version }}_macOS_universal"
 
 release:
