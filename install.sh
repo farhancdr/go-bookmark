@@ -32,8 +32,11 @@ fi
 
 # Construct download URL
 FILE_NAME="${BINARY_NAME}_${VERSION}_${OS}_${ARCH}.tar.gz"
-DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${VERSION}/${FILE_NAME}"
+DOWNLOAD_URL="https://github.com/farhancdr/go-bookmark/releases/download/v1.1.2/bm_1.1.2_macOS_arm64.tar.gz"
+echo "Downloading ${DOWNLOAD_URL}"
 
+# https://github.com/farhancdr/go-bookmark/releases/download/v1.1.2/bm_v1.1.2_macOS_arm64.tar.gz
+# https://github.com/farhancdr/go-bookmark/releases/download/v1.1.2/bm_1.1.2_macOS_arm64.tar.gz
 # Download and extract the binary
 TEMP_DIR=$(mktemp -d)
 trap 'rm -rf "$TEMP_DIR"' EXIT
