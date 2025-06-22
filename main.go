@@ -1,16 +1,11 @@
+/*
+Copyright © 2025 NAME HERE <EMAIL ADDRESS>
+
+*/
 package main
 
-import (
-	"fmt"
-	"os"
-
-	"github.com/farhancdr/go-bookmark/cmd"
-)
+import "github.com/farhancdr/go-bookmark/cmd"
 
 func main() {
-	rootCmd := cmd.NewRootCmd()
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
-	}
+	cmd.Execute()
 }

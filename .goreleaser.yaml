@@ -1,105 +1,54 @@
-version: 2
+# .goreleaser.yml
+project_name: bm
 
 before:
   hooks:
     - go mod tidy
-    - go generate ./...
-    - ./scripts/generate-completions.sh
+    - go mod download
 
 builds:
-  - id: bm
-    binary: bm
-    main: ./main.go
-    env:
+  - env:
       - CGO_ENABLED=0
+    id: bm
+    main: ./main.go
+    binary: bm
     goos:
-      - darwin
       - linux
+      - darwin
     goarch:
-      - arm64  # macOS Silicon and Linux ARM64
-      - amd64  # macOS x86_64 and Linux x86_64
-    ldflags:
-      - -s -w -X github.com/farhancdr/go-bookmark/cmd.version={{.Version}}
+      - amd64
+      - arm64
+    ignore:
+      - goos: darwin
+        goarch: 386  # No 32-bit support for macOS
+      - goos: linux
+        goarch: 386  # No 32-bit support for Linux
 
 archives:
-  - id: bm
-    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ if eq .Os \"darwin\" }}macOS_universal{{ else if eq .Os \"linux\" }}{{ if eq .Arch \"arm64\" }}Linux_ARM64{{ else }}Linux_x86_64{{ end }}{{ end }}"
-    wrap_in_directory: true
+  - format: tar.gz
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    replacements:
+      darwin: macOS
+      linux: Linux
+      amd64: x86_64
     files:
       - README.md
-      - completions/bm.bash
-      - completions/bm.zsh
-      - completions/bm.fish
-
-universal_binaries:
-  - id: bm
-    replace: true
-    name_template: "{{ .ProjectName }}_{{ .Version }}_macOS_universal"
-
-release:
-  github:
-    owner: farhancdr
-    name: go-bookmark
-  prerelease: auto
+      - LICENSE
 
 checksum:
-  name_template: checksums.txt
+  name_template: "{{ .ProjectName }}_checksums.txt"
+
+snapshot:
+  name_template: "{{ .Tag }}-next"
 
 changelog:
   sort: asc
   filters:
     exclude:
-      - '^docs:'
-      - '^test:'
+      - "^docs:"
+      - "^test:"
 
-homebrew_casks:
-  - name: bm
-    directory: Casks
-    description: "A cross-platform CLI tool for efficient directory bookmarking and navigation"
-    homepage: "https://github.com/farhancdr/go-bookmark"
-    repository:
-      owner: farhancdr
-      name: homebrew-tools
-      branch: main
-    commit_author:
-      name: farhancdr
-      email: your-email@example.com
-    hooks:
-      post:
-        install: |
-          if system_command("/usr/bin/xattr", args: ["-h"]).exit_status == 0
-            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/bm"]
-          end
-    binary: |
-      binary "#{staged_path}/bm"
-      bash_completion.install "#{staged_path}/completions/bm.bash" => "bm"
-      zsh_completion.install "#{staged_path}/completions/bm.zsh" => "_bm"
-      fish_completion.install "#{staged_path}/completions/bm.fish"
-    caveats: |
-      To enable directory navigation with `bm goto`, add the following to your shell configuration:
-
-      For Bash/Zsh (~/.bashrc or ~/.zshrc):
-        function bm_goto() {
-            local target_dir=$(bm goto "$1")
-            if [ -n "$target_dir" ] && [ -d "$target_dir" ]; then
-                cd "$target_dir"
-            else
-                echo "Error: $target_dir"
-            fi
-        }
-        alias bm_g='bm_goto'
-
-      For Fish (~/.config/fish/config.fish):
-        function bm_goto
-            set target_dir (bm goto $argv[1])
-            if test -n "$target_dir" -a -d "$target_dir"
-                cd $target_dir
-            else
-                echo "Error: $target_dir"
-            end
-        end
-
-      After adding, reload your shell with:
-        source ~/.bashrc  # or ~/.zshrc or ~/.config/fish/config.fish
-
-      Shell completions have been installed for bash, zsh, and fish.
+# Optional: Sign release artifacts with GPG (requires setup)
+signs:
+  - artifacts: checksum
+    args: ["--output", "${signature}", "--detach-sign", "${artifact}"]
