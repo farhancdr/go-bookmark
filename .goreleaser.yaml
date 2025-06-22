@@ -20,17 +20,21 @@ builds:
       - arm64
     ignore:
       - goos: darwin
-        goarch: 386  # No 32-bit support for macOS
+        goarch: 386
       - goos: linux
-        goarch: 386  # No 32-bit support for Linux
+        goarch: 386
 
 archives:
   - format: tar.gz
-    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
-    replacements:
-      darwin: macOS
-      linux: Linux
-      amd64: x86_64
+    name_template: >-
+      {{- .ProjectName }}_{{ .Version }}_
+      {{- if eq .Os "darwin" }}macOS
+      {{- else if eq .Os "linux" }}Linux
+      {{- else }}{{ .Os }}
+      {{- end }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else }}{{ .Arch }}
+      {{- end }}
     files:
       - README.md
       - LICENSE
@@ -48,7 +52,6 @@ changelog:
       - "^docs:"
       - "^test:"
 
-# Optional: Sign release artifacts with GPG (requires setup)
 signs:
   - artifacts: checksum
     args: ["--output", "${signature}", "--detach-sign", "${artifact}"]
