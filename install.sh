@@ -30,13 +30,13 @@ if [ -z "$VERSION" ]; then
   exit 1
 fi
 
-# Construct download URL
-FILE_NAME="${BINARY_NAME}_${VERSION}_${OS}_${ARCH}.tar.gz"
-DOWNLOAD_URL="https://github.com/farhancdr/go-bookmark/releases/download/v1.1.2/bm_1.1.2_macOS_arm64.tar.gz"
-echo "Downloading ${DOWNLOAD_URL}"
+# Remove 'v' prefix from version for file name
+VERSION_NO_V=${VERSION#v}
 
-# https://github.com/farhancdr/go-bookmark/releases/download/v1.1.2/bm_v1.1.2_macOS_arm64.tar.gz
-# https://github.com/farhancdr/go-bookmark/releases/download/v1.1.2/bm_1.1.2_macOS_arm64.tar.gz
+# Construct download URL
+FILE_NAME="${BINARY_NAME}_${VERSION_NO_V}_${OS}_${ARCH}.tar.gz"
+DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${VERSION}/${FILE_NAME}"
+
 # Download and extract the binary
 TEMP_DIR=$(mktemp -d)
 trap 'rm -rf "$TEMP_DIR"' EXIT
